@@ -57,19 +57,30 @@ export function useFinanceData() {
   }
 
   const fetchExpenseByType = async (typeName: string) => {
-    const amount = await getExpenseByType(typeName)
-    expenseAmounts.value = { ...expenseAmounts.value, [typeName]: amount }
+    try {
+      const amount = await getExpenseByType(typeName)
+      expenseAmounts.value = { ...expenseAmounts.value, [typeName]: amount }
+    } catch (err) {
+      console.error(`Failed to fetch expense for ${typeName}:`, err)
+    }
   }
 
   const fetchIncomeByType = async (typeName: string) => {
-    const amount = await getIncomeByType(typeName)
-    incomeAmounts.value = { ...incomeAmounts.value, [typeName]: amount }
+    try {
+      const amount = await getIncomeByType(typeName)
+      incomeAmounts.value = { ...incomeAmounts.value, [typeName]: amount }
+    } catch (err) {
+      console.error(`Failed to fetch income for ${typeName}:`, err)
+    }
   }
 
   const fetchExpenseTotal = async () => {
     loadingExpenseTotal.value = true
     try {
       expenseTotal.value = await getExpenseTotal()
+    } catch (err) {
+      console.error('Failed to fetch expense total:', err)
+      expenseTotal.value = 0
     } finally {
       loadingExpenseTotal.value = false
     }
@@ -79,6 +90,9 @@ export function useFinanceData() {
     loadingIncomeTotal.value = true
     try {
       incomeTotal.value = await getIncomeTotal()
+    } catch (err) {
+      console.error('Failed to fetch income total:', err)
+      incomeTotal.value = 0
     } finally {
       loadingIncomeTotal.value = false
     }

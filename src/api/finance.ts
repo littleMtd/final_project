@@ -1,19 +1,22 @@
 import { request } from './http'
-import type { CreateEntryPayload, CreateTypePayload, FinanceType } from '../types/finance'
+import type { 
+  CreateEntryPayload, 
+  CreateTypePayload, 
+  FinanceType, 
+  Purpose,
+  CreatePurposePayload,
+  ReportGenerateResponse
+} from '../types/finance'
 
-// GET: 類型列表
 export const getExpenseTypes = () => request<FinanceType[]>('/expense/types/')
 export const getIncomeTypes = () => request<FinanceType[]>('/income/types/')
 
-// GET: 類型累計金額
 export const getExpenseByType = (name: string) => request<number>(`/expense/types/${name}/`)
 export const getIncomeByType = (name: string) => request<number>(`/income/types/${name}/`)
 
-// GET: 總額
 export const getExpenseTotal = () => request<number>('/expense/total/')
 export const getIncomeTotal = () => request<number>('/income/total/')
 
-// POST: 新增類型
 export const createExpenseType = (payload: CreateTypePayload) =>
   request<void>('/expense/types/', {
     method: 'POST',
@@ -28,7 +31,6 @@ export const createIncomeType = (payload: CreateTypePayload) =>
     parseJson: false
   })
 
-// POST: 新增項目
 export const createExpenseEntry = (payload: CreateEntryPayload) =>
   request<void>('/expense/', {
     method: 'POST',
@@ -41,4 +43,20 @@ export const createIncomeEntry = (payload: CreateEntryPayload) =>
     method: 'POST',
     body: JSON.stringify(payload),
     parseJson: false
+  })
+
+export const getAllPurposes = () => request<string[]>('/purpose/')
+
+export const getPurposeByName = (name: string) => request<number>(`/purpose/${name}/`)
+
+export const createPurpose = (payload: CreatePurposePayload) =>
+  request<void>('/purpose/', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    parseJson: false
+  })
+
+export const generateMonthlyReport = () => 
+  request<ReportGenerateResponse>('/report/generate/', {
+    method: 'POST'
   })

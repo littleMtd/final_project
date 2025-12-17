@@ -21,7 +21,6 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 
   const hasBody =
     response.status !== 204 &&
-    response.status !== 202 &&
     response.headers.get('Content-Length') !== '0'
 
   if (!parseJson || !hasBody) {

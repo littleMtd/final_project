@@ -1,11 +1,11 @@
 <template>
   <div id="app">
-    <FinanceView />
+    <RouterView />
   </div>
 </template>
 
 <script setup>
-import FinanceView from './views/FinanceView.vue'
+import { RouterView } from 'vue-router'
 </script>
 
 <style>
