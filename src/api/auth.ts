@@ -1,19 +1,30 @@
 import { request } from './http'
 import type {
   LoginPayload,
-  RegisterPayload
+  RegisterPayload,
+  LoginResponse,
+  SignupResponse,
+  MeResponse
 } from '../types/auth'
 
 export const login = (payload: LoginPayload) =>
-  request<void>('/signup/', {
+  request<LoginResponse>('/api/signin/', {
     method: 'POST',
-    body: JSON.stringify(payload),
-    parseJson: false
+    body: JSON.stringify(payload)
   })
 
 export const register = (payload: RegisterPayload) =>
-  request<void>('/signin/', {
+  request<SignupResponse>('/api/signup/', {
     method: 'POST',
-    body: JSON.stringify(payload),
-    parseJson: false
+    body: JSON.stringify(payload)
+  })
+
+export const logout = () =>
+  request<{ message: string }>('/api/signout/', {
+    method: 'POST'
+  })
+
+export const getMe = () =>
+  request<MeResponse>('/api/me/', {
+    method: 'GET'
   })
