@@ -15,7 +15,10 @@
     "noEmit": true,
     "jsx": "preserve",
     "types": ["node"],
-    "lib": ["ESNext", "DOM"]
+    "lib": ["ESNext", "DOM"],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true
   },
   "include": [
     "src/**/*.ts",
