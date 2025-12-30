@@ -1,13 +1,21 @@
 export type AuthUser = {
-  id: string
+  id: number
   username: string
-  name?: string
+  email?: string
 }
 
-export type AuthResponse = {
-  token: string
-  user: AuthUser
+// Unified API response format
+export type ApiResponse<T> = {
+  success: true
+  data?: T
+  message?: string
 }
+
+export type LoginResponse = ApiResponse<{ user: AuthUser }>
+
+export type SignupResponse = ApiResponse<{ user: AuthUser }>
+
+export type MeResponse = ApiResponse<{ user: AuthUser }>
 
 export type LoginPayload = {
   username: string
@@ -17,9 +25,5 @@ export type LoginPayload = {
 export type RegisterPayload = {
   username: string
   password: string
-  name?: string
-}
-
-export type AuthSuccessResponse = {
-  status: number
+  email?: string
 }

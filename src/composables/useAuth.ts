@@ -1,71 +1,50 @@
 import { computed, ref } from 'vue'
-import { login, register } from '@/api/auth'
-import type {
-  AuthUser,
-  LoginPayload,
-  RegisterPayload
-} from '@/types/auth'
+import { login, register, logout as logoutApi, getMe } from '@/api/auth'
+import type { AuthUser, LoginPayload, RegisterPayload } from '@/types/auth'
+import { ApiError, NetworkError, ValidationError, AuthenticationError } from '@/api/http'
 
-const storedUser = localStorage.getItem('auth_user')
-
-const user = ref<AuthUser | null>(storedUser ? safeParseUser(storedUser) : null)
+const user = ref<AuthUser | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
-
-function safeParseUser(payload: string): AuthUser | null {
-  try {
-    return JSON.parse(payload) as AuthUser
-  } catch (err) {
-    console.warn('Invalid stored user payload', err)
-    return null
-  }
-}
-
-const persistSession = (userData: AuthUser) => {
-  localStorage.setItem('auth_user', JSON.stringify(userData))
-}
-
-const clearPersistedSession = () => {
-  localStorage.removeItem('auth_user')
-}
-
-const setSession = (userData: AuthUser) => {
-  user.value = userData
-  persistSession(userData)
-}
-
-const clearSession = () => {
-  user.value = null
-  clearPersistedSession()
-}
+const initialized = ref(false)
 
 export function useAuth() {
-  const isAuthenticated = computed(() => Boolean(user.value))
+  const isAuthenticated = computed(() => user.value !== null)
+
+  const initAuth = async () => {
+    if (initialized.value) return
+    
+    loading.value = true
+    try {
+      const response = await getMe()
+      user.value = response.data?.user || null
+    } catch (err) {
+      // Not authenticated or session expired
+      user.value = null
+    } finally {
+      loading.value = false
+      initialized.value = true
+    }
+  }
 
   const loginUser = async (payload: LoginPayload) => {
     loading.value = true
     error.value = null
     try {
-      // Development: mock login for testing without backend
-      if (payload.username === 'admin' && payload.password === 'admin') {
-        const mockUser: AuthUser = {
-          id: 'admin-001',
-          username: 'admin',
-          name: 'Administrator'
-        }
-        setSession(mockUser)
-        return
-      }
-
-      // Backend returns 204, manually create user object after successful login
-      await login(payload)
-      const userData: AuthUser = {
-        id: Date.now().toString(),
-        username: payload.username
-      }
-      setSession(userData)
+      const response = await login(payload)
+      user.value = response.data?.user || null
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Login failed'
+      if (err instanceof NetworkError) {
+        error.value = '網絡連接失敗，請檢查您的網絡'
+      } else if (err instanceof AuthenticationError) {
+        error.value = '帳號或密碼錯誤'
+      } else if (err instanceof ValidationError) {
+        error.value = '輸入格式不正確'
+      } else if (err instanceof ApiError) {
+        error.value = err.message || '登入失敗，請稍後再試'
+      } else {
+        error.value = err instanceof Error ? err.message : '登入失敗'
+      }
       throw err
     } finally {
       loading.value = false
@@ -76,24 +55,37 @@ export function useAuth() {
     loading.value = true
     error.value = null
     try {
-      // Backend returns 204, manually create user object after successful registration
-      await register(payload)
-      const userData: AuthUser = {
-        id: Date.now().toString(),
-        username: payload.username,
-        name: payload.name
-      }
-      setSession(userData)
+      const response = await register(payload)
+      // Registration returns user directly, set it
+      user.value = response.data?.user || null
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Register failed'
+      if (err instanceof NetworkError) {
+        error.value = '網絡連接失敗，請檢查您的網絡'
+      } else if (err instanceof ValidationError) {
+        error.value = err.details?.username ? '用戶名已存在或不符合要求' : '註冊信息格式不正確'
+      } else if (err instanceof ApiError) {
+        error.value = err.message || '註冊失敗，請稍後再試'
+      } else {
+        error.value = err instanceof Error ? err.message : '註冊失敗'
+      }
       throw err
     } finally {
       loading.value = false
     }
   }
 
-  const logout = () => {
-    clearSession()
+  const logoutUser = async () => {
+    loading.value = true
+    try {
+      await logoutApi()
+      user.value = null
+    } catch (err) {
+      console.error('Logout error:', err)
+      // Clear user anyway
+      user.value = null
+    } finally {
+      loading.value = false
+    }
   }
 
   return {
@@ -101,8 +93,10 @@ export function useAuth() {
     isAuthenticated,
     loading,
     error,
+    initialized,
+    initAuth,
     loginUser,
     registerUser,
-    logout
+    logout: logoutUser
   }
 }
