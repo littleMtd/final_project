@@ -49,12 +49,13 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
+import { sanitizeUsername } from '@/utils/sanitize'
 
 const router = useRouter()
 const route = useRoute()
 const mode = ref<'login' | 'register'>('login')
 const loginForm = reactive({ username: '', password: '' })
-const registerForm = reactive({ username: '', name: '', password: '' })
+const registerForm = reactive({ username: '', password: '' })
 
 const { loginUser, registerUser, loading, error, isAuthenticated } = useAuth()
 
@@ -70,19 +71,23 @@ watch(isAuthenticated, redirectIfAuthed, { immediate: true })
 
 const handleLogin = async () => {
   try {
-    await loginUser({ ...loginForm })
+    // Sanitize username input
+    const sanitizedUsername = sanitizeUsername(loginForm.username)
+    await loginUser({ username: sanitizedUsername, password: loginForm.password })
     router.push(redirectPath.value)
   } catch (err) {
-    
+    // Error handled by useAuth
   }
 }
 
 const handleRegister = async () => {
   try {
-    await registerUser({ ...registerForm })
+    // Sanitize username input
+    const sanitizedUsername = sanitizeUsername(registerForm.username)
+    await registerUser({ username: sanitizedUsername, password: registerForm.password })
     router.push(redirectPath.value)
   } catch (err) {
-    
+    // Error handled by useAuth
   }
 }
 </script>

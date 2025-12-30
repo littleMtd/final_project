@@ -16,7 +16,7 @@ import { RouterView } from 'vue-router'
 }
 
 body {
-  font-family: 'Microsoft JhengHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--app-font, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', sans-serif);
   background: #f5f7fa;
 }
 
