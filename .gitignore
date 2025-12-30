@@ -1,13 +1,89 @@
-node_modules
-dist
-*.log
-.DS_Store
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
 
-# Environment files
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+/staticfiles/
+/mediafiles/
+local_settings.py
+
+# Environment variables - NEVER commit these!
 .env
 .env.local
 .env.*.local
-# Keep environment templates
-!.env.development
-!.env.production
-!.env_example
+.env.dev
+.env.prod
+.env.production
+# Keep only the template tracked; do not commit real env files
+!.env.example
+
+# Frontend env files (keep templates only)
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+frontend/.env.development
+frontend/.env.production
+!frontend/.env_example
+
+# Backend env files
+backend/.env
+backend/.env.local
+backend/.env.*.local
+
+# Test and debug files
+*_test.py
+*_analysis.py
+show_*.py
+inspect_*.py
+security_test.py
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+dist/
+dist-ssr/
+*.local
+
+# Docker
+*.sql
+*.dump
+docker-compose.override.yml
+
+# Databases (mounted or local)
+backend/db/
+
+# Temporary files
+*.tmp
+*.temp
+show_db.py
+show_sessions.py
+inspect_session.py
+security_test.py
+security_analysis.py
