@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '@/views/LoginView.vue'
-import FinanceView from '@/views/FinanceView.vue'
+import FinanceView from '@/views/FinanceView-Refactored.vue'
 import { useAuth } from '@/composables/useAuth'
 
 const router = createRouter({
@@ -19,9 +19,15 @@ const router = createRouter({
   ]
 })
 
-router.beforeEach((to) => {
-  const { isAuthenticated } = useAuth()
+router.beforeEach(async (to, from) => {
+  const { isAuthenticated, initAuth, initialized } = useAuth()
 
+  // Initialize auth state on first navigation
+  if (!initialized.value) {
+    await initAuth()
+  }
+
+  // Avoid redirect loop - if already going to login, allow it
   if (!isAuthenticated.value && to.name !== 'login') {
     return { name: 'login', query: { redirect: to.fullPath } }
   }
