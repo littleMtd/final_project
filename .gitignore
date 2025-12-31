@@ -51,6 +51,7 @@ security_test.py
 
 # IDEs
 .vscode/
+!frontend/.vscode/tasks.json
 .idea/
 *.swp
 *.swo
@@ -70,6 +71,8 @@ pnpm-debug.log*
 dist/
 dist-ssr/
 *.local
+.vite/
+frontend/.vite/
 
 # Docker
 *.sql
