@@ -53,9 +53,10 @@ graph TB
     
     Goal --> SetGoal["設定儲蓄目標"]
     Goal --> Track["目標進度追蹤"]
+    Goal --> Warn["預算超支警示"]
     
     Export --> PDF["匯出月度報表（PDF）"]
-    Export --> Warn["預算超支警示"]
+    Export --> AutoGen["上月自動報表"]
     
     classDef rootStyle fill:#e11d48,stroke:#be123c,color:#fff,stroke-width:3px
     classDef moduleStyle fill:#2563eb,stroke:#1d4ed8,color:#fff,stroke-width:2px
@@ -63,7 +64,7 @@ graph TB
     
     class Root rootStyle
     class Auth,Finance,Visual,Goal,Export moduleStyle
-    class Register,Profile,ExpMgr,IncMgr,Ledger,Report,Chart,Insight,SetGoal,Track,PDF,Warn featureStyle
+    class Register,Profile,ExpMgr,IncMgr,Ledger,Report,Chart,Insight,SetGoal,Track,Warn,PDF,AutoGen featureStyle
 ```
 
 ---
