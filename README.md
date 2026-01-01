@@ -2,7 +2,7 @@
 
 一個「直接能用」的記帳系統。前端用 Vue 3，後端用 Django REST Framework，已附好 Docker 讓你一鍵啟動。
 
-- 想試跑：只要裝好 Docker，就能 5 分鐘看到畫面。
+- 想試跑：只要裝好 Docker，**一行複製指令 + 啟動**即可（不需要 Python、Node.js）。
 - 想改程式：前後端程式碼都在專案裡，改完重建容器即可。
 
 ---
@@ -19,31 +19,20 @@
 
 ---
 
-## 5 分鐘快速啟動（Docker）
+## 2 分鐘快速啟動（Docker）
 1) 下載專案
 ```bash
 git clone https://github.com/littleMtd/final_project.git
 cd frontend-backend
 ```
 
-2) 準備設定檔（環境變數）
-- 複製範本：
-	- Windows PowerShell：`copy .env.example .env.dev`
-	- macOS/Linux：`cp .env.example .env.dev`
-- 生成一組隨機 SECRET_KEY（複製結果貼到 .env.dev 的 SECRET_KEY）：
+2) 複製環境設定檔（已內建開發用設定，可直接使用）
 ```bash
-python -c "import secrets; print(secrets.token_urlsafe(50))"
-```
-- 最小內容示例（編輯 `.env.dev`）：
-```ini
-SECRET_KEY=在這裡貼上剛剛產生的字串
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
-USE_HTTPS=False
-CORS_ALLOWED_ORIGINS_EXTRA=
-CSRF_TRUSTED_ORIGINS_EXTRA=
-# 留空就是用內建 SQLite；想用 PostgreSQL 就填：postgresql://USER:PASS@HOST:5432/DB
-DATABASE_URL=
+# Windows PowerShell
+copy .env.dev.example .env.dev
+
+# macOS / Linux
+cp .env.dev.example .env.dev
 ```
 
 3) 啟動
@@ -96,12 +85,14 @@ frontend-backend/
 
 ---
 ## 常見問題
-- SECRET_KEY 要填什麼？
-	- 用上面的 python 指令生一組亂數，複製貼上即可。
+- 我需要安裝 Python 或 Node.js 嗎？
+	- 不用。Docker 會處理所有環境，本機完全不需要安裝 Python、Node.js 等工具。
 - 我要用自己的資料庫嗎？
-	- 不需要。留空就會自動用 SQLite。要換 PostgreSQL 就把 `DATABASE_URL` 填好。
+	- 不需要。預設使用 SQLite（已夠用）。若要換 PostgreSQL 可編輯 `.env.dev` 的 `DATABASE_URL`。
 - Docker 啟動失敗怎麼辦？
-	- 先確認 `.env.dev` 有填 SECRET_KEY，然後重新 `docker compose -f docker-compose.dev.yml up --build`。
+	- 確認 Docker Desktop 已啟動，然後重試 `docker compose -f docker-compose.dev.yml up --build`。
+- 想自訂 SECRET_KEY 怎麼辦？
+	- 編輯 `.env.dev`，把 `SECRET_KEY=` 後面換成任何長隨機字串即可（開發環境可用預設值）。
 
 ---
 
