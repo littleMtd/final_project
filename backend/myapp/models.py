@@ -40,7 +40,7 @@ class IncomeCategory(CategoryBase):
 
 class EntryBase(TimeStampedModel):
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-	amount = models.DecimalField(max_digits=15, decimal_places=2)
+	amount = models.DecimalField(max_digits=20, decimal_places=2)
 	note = models.CharField(max_length=255, blank=True)
 	entry_date = models.DateField(default=date.today)
 
@@ -83,7 +83,7 @@ class FinancialGoal(TimeStampedModel):
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 	name = models.CharField(max_length=60)
 	goal_type = models.CharField(max_length=10, choices=GOAL_TYPE_CHOICES)
-	target_amount = models.DecimalField(max_digits=15, decimal_places=2)
+	target_amount = models.DecimalField(max_digits=20, decimal_places=2)
 	target_month = models.DateField(
 		default=first_day_of_current_month,
 		help_text="First day of the month the goal applies to.",
