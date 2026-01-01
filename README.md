@@ -45,7 +45,7 @@
 
 ### 1. 取得專案
 ```bash
-git clone [https://github.com/your-username/frontend-backend.git](https://github.com/your-username/frontend-backend.git)
+git clone https://github.com/littleMtd/final_project
 cd frontend-backend
 ```
 
