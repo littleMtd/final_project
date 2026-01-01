@@ -72,9 +72,14 @@ def expense_total(request: HttpRequest) -> JsonResponse:
 @require_http_methods(["POST"])
 def create_expense(request: HttpRequest) -> JsonResponse:
     """創建支出記錄"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     try:
+        logger.info(f"Create expense request body: {request.body}")
         user = _require_auth(request)
         data = _parse_body(request)
+        logger.info(f"Parsed data: {data}")
         category_name = data.get("type")
         if not category_name:
             raise ValueError("'type' is required")
@@ -124,9 +129,14 @@ def create_expense(request: HttpRequest) -> JsonResponse:
         
         return _json_success(response_data, status=201)
     except ValueError as exc:
+        logger.error(f"ValueError in create_expense: {exc}")
         return _json_error(str(exc))
     except PermissionError as exc:
+        logger.error(f"PermissionError in create_expense: {exc}")
         return _json_error(str(exc), status=401)
+    except Exception as exc:
+        logger.error(f"Unexpected error in create_expense: {exc}", exc_info=True)
+        return _json_error("Internal server error", status=500)
 
 
 @csrf_exempt

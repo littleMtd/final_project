@@ -62,20 +62,19 @@ class IncomeCategorySerializer(serializers.ModelSerializer):
 
 
 class ExpenseEntrySerializer(serializers.ModelSerializer):
-    type = serializers.CharField(source='category.name', read_only=True)
-    category_name = serializers.CharField(write_only=True, source='type')
+    type = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = ExpenseEntry
-        fields = ['id', 'type', 'category_name', 'amount', 'note', 'entry_date', 'created_at']
-        read_only_fields = ['id', 'type', 'created_at']
+        fields = ['id', 'type', 'amount', 'note', 'entry_date', 'created_at']
+        read_only_fields = ['id', 'created_at']
 
     def validate_amount(self, value):
         if value <= 0:
             raise serializers.ValidationError("Amount must be positive")
         return value
 
-    def validate_category_name(self, value):
+    def validate_type(self, value):
         user = self.context['request'].user
         if not ExpenseCategory.objects.filter(user=user, name=value).exists():
             raise serializers.ValidationError("Category does not exist")
@@ -141,20 +140,19 @@ class ExpenseEntrySerializer(serializers.ModelSerializer):
 
 
 class IncomeEntrySerializer(serializers.ModelSerializer):
-    type = serializers.CharField(source='category.name', read_only=True)
-    category_name = serializers.CharField(write_only=True, source='type')
+    type = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = IncomeEntry
-        fields = ['id', 'type', 'category_name', 'amount', 'note', 'entry_date', 'created_at']
-        read_only_fields = ['id', 'type', 'created_at']
+        fields = ['id', 'type', 'amount', 'note', 'entry_date', 'created_at']
+        read_only_fields = ['id', 'created_at']
 
     def validate_amount(self, value):
         if value <= 0:
             raise serializers.ValidationError("Amount must be positive")
         return value
 
-    def validate_category_name(self, value):
+    def validate_type(self, value):
         user = self.context['request'].user
         if not IncomeCategory.objects.filter(user=user, name=value).exists():
             raise serializers.ValidationError("Category does not exist")
