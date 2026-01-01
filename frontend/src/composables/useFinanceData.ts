@@ -96,11 +96,11 @@ export function useFinanceData() {
     }
   }
 
-  async function loadGoals() {
+  async function loadGoals(month?: string) {
     loadingGoals.value = true
     errorGoals.value = null
     try {
-      const res = await listGoals()
+      const res = await listGoals(month ? { month } : undefined)
       goals.value = res.goals?.map(g => ({
         name: g.name,
         type: g.type,
@@ -165,6 +165,7 @@ export function useFinanceData() {
     errorGoals,
     balance,
     refreshAll,
+    loadGoals,
     addGoal,
     addExpenseType,
     addIncomeType,

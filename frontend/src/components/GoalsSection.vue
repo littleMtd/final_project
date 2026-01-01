@@ -3,6 +3,15 @@
     <div class="section-heading">
       <div>
         <h2 class="section-title">目標設定與進度</h2>
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+          <label style="font-size: 0.875rem; color: #666;">建立/查看月份：</label>
+          <input 
+            :value="selectedMonth" 
+            @input="$emit('update:selected-month', ($event.target as HTMLInputElement).value)"
+            type="month" 
+            style="padding: 0.375rem 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.875rem;"
+          />
+        </div>
       </div>
       <div class="inline-form goal-form" @submit.prevent>
         <input v-model="goalForm.name" type="text" placeholder="目標名稱 (例：本月儲蓄)" />
@@ -18,7 +27,6 @@
           step="1" 
           placeholder="金額" 
         />
-        <input v-model="goalForm.target_month" type="month" />
         <button 
           class="primary" 
           type="button" 
@@ -39,9 +47,19 @@
             <h3 class="goal-title">{{ g.name }}</h3>
             <p class="goal-month muted">目標月份：{{ (g.target_month || '').slice(0,7) }}</p>
           </div>
-          <div class="goal-amounts">
-            <span class="goal-target">目標 NT$ {{ Math.round(g.target).toLocaleString() }}</span>
-            <span class="goal-progress">進度 NT$ {{ Math.round(g.progress ?? 0).toLocaleString() }}</span>
+          <div class="goal-actions">
+            <div class="goal-amounts">
+              <span class="goal-target">目標 NT$ {{ Math.round(g.target).toLocaleString() }}</span>
+              <span class="goal-progress">進度 NT$ {{ Math.round(g.progress ?? 0).toLocaleString() }}</span>
+            </div>
+            <button 
+              type="button" 
+              class="delete-goal-btn" 
+              @click="$emit('delete-goal', { name: g.name, type: g.type, month: (g.target_month || '').slice(0,7) })"
+              title="刪除目標"
+            >
+              ×
+            </button>
           </div>
         </div>
         <div class="goal-progress-bar">
@@ -97,18 +115,20 @@ const props = defineProps<{
   insights: string[]
   loadingInsights: boolean
   errorInsights: string
+  selectedMonth: string
 }>()
 
 const emit = defineEmits<{
-  'submit-goal': [form: { name: string; type: string; target_amount: number; target_month: string }]
+  'submit-goal': [form: { name: string; type: string; target_amount: number }]
   'refresh-insights': []
+  'update:selected-month': [value: string]
+  'delete-goal': [params: { name: string; type: string; month: string }]
 }>()
 
 const goalForm = ref({
   name: '',
   type: 'income',
-  target_amount: 0,
-  target_month: ''
+  target_amount: 0
 })
 
 const handleSubmit = () => {
@@ -123,8 +143,7 @@ defineExpose({
     goalForm.value = {
       name: '',
       type: 'income',
-      target_amount: 0,
-      target_month: ''
+      target_amount: 0
     }
   }
 })
@@ -217,6 +236,12 @@ button.ghost {
   margin-bottom: 0.75rem;
 }
 
+.goal-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
 .goal-title {
   font-size: 1rem;
   margin: 0 0 0.25rem 0;
@@ -233,6 +258,29 @@ button.ghost {
   flex-direction: column;
   align-items: flex-end;
   gap: 0.25rem;
+}
+
+.delete-goal-btn {
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  color: #ef4444;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.delete-goal-btn:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
 }
 
 .goal-target,

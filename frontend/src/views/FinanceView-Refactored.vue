@@ -61,8 +61,11 @@
       :insights="insights"
       :loading-insights="loadingInsights"
       :error-insights="errorInsights || ''"
+      :selected-month="insightsMonth"
       @submit-goal="handleSubmitGoal"
+      @delete-goal="handleDeleteGoal"
       @refresh-insights="loadInsights"
+      @update:selected-month="(m) => { insightsMonth = m; loadGoals(m ? `${m}-01` : undefined); loadInsights() }"
     />
 
     <!-- Analysis Grid -->
@@ -142,7 +145,8 @@ import {
   getInsights, 
   getReportStatus, 
   createExpenseEntry,
-  createIncomeEntry
+  createIncomeEntry,
+  deleteGoal
 } from '@/api/finance'
 import type { 
   MonthlyReport as MonthlyReportType, 
@@ -175,6 +179,7 @@ const {
   errorGoals,
   balance,
   refreshAll,
+  loadGoals,
   addGoal
 } = useFinanceData()
 
@@ -182,12 +187,13 @@ const {
 const insights = ref<string[]>([])
 const loadingInsights = ref(false)
 const errorInsights = ref<string | null>(null)
+const insightsMonth = ref(new Date().toISOString().slice(0, 7))
 
 async function loadInsights() {
   loadingInsights.value = true
   errorInsights.value = null
   try {
-    const res = await getInsights()
+    const res = await getInsights({ month: insightsMonth.value ? `${insightsMonth.value}-01` : undefined })
     insights.value = res.insights ?? []
   } catch (err) {
     errorInsights.value = err instanceof Error ? err.message : '無法取得建議'
@@ -199,20 +205,37 @@ async function loadInsights() {
 // Goals
 const creatingGoal = ref(false)
 
-async function handleSubmitGoal(form: { name: string; type: string; target_amount: number; target_month: string }) {
+async function handleSubmitGoal(form: { name: string; type: string; target_amount: number }) {
   creatingGoal.value = true
   try {
     await addGoal({
       name: form.name,
       type: form.type as 'income' | 'expense',
       target_amount: form.target_amount,
-      target_month: form.target_month ? `${form.target_month}-01` : undefined
+      target_month: insightsMonth.value ? `${insightsMonth.value}-01` : undefined
     })
+    await loadGoals(insightsMonth.value ? `${insightsMonth.value}-01` : undefined)
     await loadInsights()
   } catch (err) {
     console.error('Failed to create goal', err)
   } finally {
     creatingGoal.value = false
+  }
+}
+
+async function handleDeleteGoal(params: { name: string; type: string; month: string }) {
+  if (!confirm(`確定要刪除目標「${params.name}」嗎？`)) return
+  
+  try {
+    await deleteGoal(params.name, { 
+      type: params.type as 'income' | 'expense', 
+      month: params.month ? `${params.month}-01` : undefined 
+    })
+    await loadGoals(insightsMonth.value ? `${insightsMonth.value}-01` : undefined)
+    await loadInsights()
+  } catch (err) {
+    console.error('Failed to delete goal', err)
+    alert('刪除目標失敗')
   }
 }
 
@@ -503,6 +526,7 @@ async function handleRefreshAll() {
 
 onMounted(() => {
   refreshAll()
+  loadGoals(insightsMonth.value ? `${insightsMonth.value}-01` : undefined)
   loadInsights()
   fetchLedger()
   refreshAutoReport()

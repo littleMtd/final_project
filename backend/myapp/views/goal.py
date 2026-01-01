@@ -71,14 +71,40 @@ def purpose(request: HttpRequest) -> JsonResponse:
         return _json_error(str(exc))
 
 
-@require_http_methods(["GET"])
+@csrf_exempt
+@require_http_methods(["GET", "DELETE"])
 def purpose_detail(request: HttpRequest, name: str) -> JsonResponse:
-    """獲取特定目標的詳細信息"""
+    """獲取或刪除特定目標的詳細信息"""
     try:
         user = _require_auth(request)
     except PermissionError as exc:
         return _json_error(str(exc), status=401)
 
+    # DELETE: 刪除特定目標
+    if request.method == "DELETE":
+        goal_qs = FinancialGoal.objects.filter(user=user, name=name)
+        goal_type = request.GET.get("type")
+        if goal_type:
+            goal_qs = goal_qs.filter(goal_type=goal_type)
+        
+        month_value = request.GET.get("month")
+        if month_value:
+            try:
+                month_date = date.fromisoformat(month_value).replace(day=1)
+            except ValueError:
+                return _json_error("month must be YYYY-MM or YYYY-MM-DD")
+            goal_qs = goal_qs.filter(target_month=month_date)
+        
+        deleted_count = goal_qs.delete()[0]
+        if deleted_count == 0:
+            return _json_error("Goal not found", status=404)
+        
+        return _json_success({
+            "deleted": True,
+            "count": deleted_count
+        })
+
+    # GET: 獲取目標詳細信息
     goal_qs = FinancialGoal.objects.filter(user=user, name=name)
     goal_type = request.GET.get("type")
     if goal_type:

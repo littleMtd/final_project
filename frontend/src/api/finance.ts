@@ -93,7 +93,10 @@ export const getIncomeTotal = async (): Promise<number> => {
 }
 
 // Goals
-export const listGoals = () => request<GoalsListResponse>('/api/purpose/')
+export const listGoals = (params?: { month?: string }) => {
+  const query = params?.month ? `?month=${params.month}` : ''
+  return request<GoalsListResponse>(`/api/purpose/${query}`)
+}
 
 export const createGoal = (payload: { name: string; type: 'expense' | 'income'; target_amount: number; target_month?: string }) =>
   request<void>('/api/purpose/', {
@@ -101,6 +104,16 @@ export const createGoal = (payload: { name: string; type: 'expense' | 'income'; 
     body: JSON.stringify(payload),
     parseJson: false
   })
+
+export const deleteGoal = (name: string, params?: { type?: 'expense' | 'income'; month?: string }) => {
+  const query = new URLSearchParams()
+  if (params?.type) query.set('type', params.type)
+  if (params?.month) query.set('month', params.month)
+  return request<void>(`/api/purpose/${encodeURIComponent(name)}/${query.toString() ? `?${query.toString()}` : ''}`, {
+    method: 'DELETE',
+    parseJson: false
+  })
+}
 
 export const getGoalProgress = (name: string, params?: { type?: 'expense' | 'income'; month?: string }) => {
   const query = new URLSearchParams()
@@ -110,7 +123,10 @@ export const getGoalProgress = (name: string, params?: { type?: 'expense' | 'inc
 }
 
 // Insights
-export const getInsights = () => request<InsightsResponse>('/api/insights/')
+export const getInsights = (params?: { month?: string }) => {
+  const query = params?.month ? `?month=${params.month}` : ''
+  return request<InsightsResponse>(`/api/insights/${query}`)
+}
 
 // Report status
 export const getReportStatus = () => request<ReportStatusResponse>('/api/report/status/')

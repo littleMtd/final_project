@@ -74,7 +74,7 @@ graph TB
 ### 1. 下載專案
 ```bash
 git clone https://github.com/littleMtd/final_project.git
-cd frontend-backend
+cd final_project
 ```
 
 ### 2. 複製環境設定檔

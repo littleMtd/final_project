@@ -98,6 +98,7 @@ def summarize_month(user, target_month: date | None = None) -> Summary:
                 "name": goal.name,
                 "type": goal.goal_type,
                 "target": float(goal.target_amount),
+                "target_month": goal.target_month.strftime("%Y-%m-%d"),
                 "progress": float(progress_amount),
                 "percentage": float(round(percentage, 2)),
             }
