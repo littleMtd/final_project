@@ -28,7 +28,47 @@
 
 ---
 
-## 🚀 2 分鐘快速啟動（Docker）
+## � 系統架構圖
+
+```mermaid
+graph TB
+    Root["個人財務系統<br/>(Personal Finance)"]
+    
+    Root --> Auth["使用者中心"]
+    Root --> Finance["收支記帳核心"]
+    Root --> Visual["視覺化儀表板"]
+    Root --> Goal["財務目標管理"]
+    Root --> Export["資料整合服務"]
+    
+    Auth --> Register["註冊與登入"]
+    Auth --> Profile["個人資料維護"]
+    
+    Finance --> ExpMgr["支出管理（分類/記錄）"]
+    Finance --> IncMgr["收入管理（分類/記錄）"]
+    Finance --> Ledger["交易明細查詢"]
+    
+    Visual --> Report["月度收支報表"]
+    Visual --> Chart["類別佔比分析（圓餅圖）"]
+    Visual --> Insight["收支趨勢洞察"]
+    
+    Goal --> SetGoal["設定儲蓄目標"]
+    Goal --> Track["目標進度追蹤"]
+    
+    Export --> PDF["匯出月度報表（PDF）"]
+    Export --> Warn["預算超支警示"]
+    
+    classDef rootStyle fill:#e11d48,stroke:#be123c,color:#fff,stroke-width:3px
+    classDef moduleStyle fill:#2563eb,stroke:#1d4ed8,color:#fff,stroke-width:2px
+    classDef featureStyle fill:#f8fafc,stroke:#cbd5e1,color:#0f172a
+    
+    class Root rootStyle
+    class Auth,Finance,Visual,Goal,Export moduleStyle
+    class Register,Profile,ExpMgr,IncMgr,Ledger,Report,Chart,Insight,SetGoal,Track,PDF,Warn featureStyle
+```
+
+---
+
+## �🚀 2 分鐘快速啟動（Docker）
 
 ### 1. 下載專案
 ```bash
