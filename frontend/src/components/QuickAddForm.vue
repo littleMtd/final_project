@@ -133,10 +133,12 @@ defineExpose({
   cursor: pointer;
   transition: all 0.2s;
   background: #fff;
+  user-select: none;
 }
 
-.pill input {
+.pill input[type="radio"] {
   margin-right: 0.5rem;
+  cursor: pointer;
 }
 
 .pill.active {
