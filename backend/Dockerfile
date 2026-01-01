@@ -7,7 +7,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 RUN apt-get update && apt-get install -y \
     gcc \
-    postgresql-client \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
@@ -17,7 +16,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Create directories with proper permissions
 RUN mkdir -p /app/db /app/logs && \
     chmod -R 755 /app/db /app/logs
 
