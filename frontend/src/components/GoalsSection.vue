@@ -14,6 +14,7 @@
           v-model.number="goalForm.target_amount" 
           type="number" 
           min="1" 
+          max="999999999999999999"
           step="1" 
           placeholder="金額" 
         />

@@ -24,6 +24,7 @@
         v-model.number="form.amount" 
         type="number" 
         min="1" 
+        max="999999999999999999"
         step="1" 
         :disabled="loading" 
         placeholder="金額" 

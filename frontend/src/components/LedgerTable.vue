@@ -81,6 +81,7 @@
                   v-model.number="editDraft.amount" 
                   type="number" 
                   min="1" 
+                  max="999999999999999999"
                   step="1" 
                   class="inline-input align-right" 
                 />
