@@ -98,17 +98,18 @@ const handleRegister = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #eef2ff, #f5f7fb);
-  padding: 1.5rem;
+  background: linear-gradient(180deg, #f7f9fc, #eef2f7);
+  padding: 2rem 1.5rem;
 }
 
 .auth-card {
   width: 100%;
   max-width: 420px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  padding: 1.75rem;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 12px 38px rgba(15, 23, 42, 0.12);
+  padding: 1.85rem;
+  border: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -118,7 +119,7 @@ const handleRegister = async () => {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
 }
 
@@ -128,12 +129,12 @@ const handleRegister = async () => {
   border: none;
   cursor: pointer;
   font-weight: 600;
-  color: #4b5563;
+  color: #475569;
 }
 
 .tabs button.active {
-  background: #111827;
-  color: white;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #f8fafc;
 }
 
 .form-section h1 {
@@ -150,15 +151,21 @@ form {
 label {
   display: grid;
   gap: 0.35rem;
-  color: #374151;
+  color: #1f2937;
   font-size: 0.95rem;
 }
 
 input {
   padding: 0.65rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
   font-size: 1rem;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+input:focus-visible {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 button[type='submit'],
@@ -169,16 +176,23 @@ button[type='submit'],
 button[type='submit'] {
   padding: 0.65rem 0.75rem;
   border: none;
-  border-radius: 10px;
-  background: #2563eb;
-  color: white;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #f8fafc;
   cursor: pointer;
   font-weight: 600;
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 button[type='submit']:disabled {
   opacity: 0.65;
   cursor: not-allowed;
+}
+
+button[type='submit']:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 40px rgba(37, 99, 235, 0.45);
 }
 
 .error {

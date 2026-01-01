@@ -54,24 +54,32 @@ def report_overview(request: HttpRequest) -> JsonResponse:
 
 @require_http_methods(["GET", "DELETE"])
 def insights(request: HttpRequest) -> JsonResponse:
-    """獲取本月財務洞察建議或清除當月所有數據"""
+    """獲取指定月份財務洞察建議或清除指定月份所有數據"""
     try:
         user = _require_auth(request)
     except PermissionError as exc:
         return _json_error(str(exc), status=401)
 
-    # DELETE 方法：清除當月所有收入/支出記錄
+    # 解析月份參數
+    month_value = request.GET.get("month")
+    if month_value:
+        try:
+            target_month = date.fromisoformat(month_value).replace(day=1)
+        except ValueError:
+            return _json_error("month must be YYYY-MM or YYYY-MM-DD")
+    else:
+        target_month = date.today().replace(day=1)
+
+    # DELETE 方法：清除指定月份所有收入/支出記錄
     if request.method == "DELETE":
         from ..models import ExpenseEntry, IncomeEntry
-        from datetime import date
-        
-        # 獲取當月第一天和最後一天
-        today = date.today()
-        first_day = today.replace(day=1)
         from calendar import monthrange
-        last_day = today.replace(day=monthrange(today.year, today.month)[1])
         
-        # 刪除當月的收入和支出記錄
+        # 獲取指定月份的第一天和最後一天
+        first_day = target_month
+        last_day = target_month.replace(day=monthrange(target_month.year, target_month.month)[1])
+        
+        # 刪除該月的收入和支出記錄
         expense_deleted = ExpenseEntry.objects.filter(
             user=user,
             entry_date__gte=first_day,
@@ -91,7 +99,7 @@ def insights(request: HttpRequest) -> JsonResponse:
             "month": first_day.strftime("%Y-%m")
         })
 
-    summary = summarize_month(user)
+    summary = summarize_month(user, target_month)
     insight_lines = build_insights(summary)
     return _json_success({"insights": insight_lines})
 

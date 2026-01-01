@@ -40,15 +40,24 @@ def expense_types(request: HttpRequest) -> JsonResponse:
 
 @require_http_methods(["GET"])
 def expense_type_total(request: HttpRequest, name: str) -> JsonResponse:
-    """獲取某個支出類別的總額"""
+    """獲取某個支出類別的總額（可選月份篩選）"""
     try:
         user = _require_auth(request)
-        total = (
-            ExpenseEntry.objects.filter(user=user, category__name=name)
-            .aggregate(total=Sum("amount"))
-            .get("total")
-            or 0
-        )
+        
+        # 解析月份參數
+        queryset = ExpenseEntry.objects.filter(user=user, category__name=name)
+        month_value = request.GET.get("month")
+        if month_value:
+            try:
+                from datetime import date
+                from calendar import monthrange
+                target_month = date.fromisoformat(month_value).replace(day=1)
+                last_day = target_month.replace(day=monthrange(target_month.year, target_month.month)[1])
+                queryset = queryset.filter(entry_date__gte=target_month, entry_date__lte=last_day)
+            except ValueError:
+                return _json_error("month must be YYYY-MM or YYYY-MM-DD")
+        
+        total = queryset.aggregate(total=Sum("amount")).get("total") or 0
         return _amount_response(name, total)
     except PermissionError as exc:
         return _json_error(str(exc), status=401)
@@ -56,13 +65,24 @@ def expense_type_total(request: HttpRequest, name: str) -> JsonResponse:
 
 @require_http_methods(["GET"])
 def expense_total(request: HttpRequest) -> JsonResponse:
-    """獲取所有支出的總額"""
+    """獲取所有支出的總額（可選月份篩選）"""
     try:
         user = _require_auth(request)
-        total = (
-            ExpenseEntry.objects.filter(user=user).aggregate(total=Sum("amount")).get("total")
-            or 0
-        )
+        
+        # 解析月份參數
+        queryset = ExpenseEntry.objects.filter(user=user)
+        month_value = request.GET.get("month")
+        if month_value:
+            try:
+                from datetime import date
+                from calendar import monthrange
+                target_month = date.fromisoformat(month_value).replace(day=1)
+                last_day = target_month.replace(day=monthrange(target_month.year, target_month.month)[1])
+                queryset = queryset.filter(entry_date__gte=target_month, entry_date__lte=last_day)
+            except ValueError:
+                return _json_error("month must be YYYY-MM or YYYY-MM-DD")
+        
+        total = queryset.aggregate(total=Sum("amount")).get("total") or 0
         return _json_success({"total": float(total)})
     except PermissionError as exc:
         return _json_error(str(exc), status=401)

@@ -25,14 +25,21 @@
       </div>
     </header>
 
-    <!-- Summary Bar -->
-    <SummaryBar
-      :expense-total="expenseTotal"
-      :income-total="incomeTotal"
-      :balance="balance"
-      :loading-expense-total="loadingExpenseTotal"
-      :loading-income-total="loadingIncomeTotal"
-    />
+    <!-- Top Info Cards -->
+    <div class="info-row">
+      <div class="info-card">
+        <p class="info-label">收入</p>
+        <p class="info-value">NT$ {{ incomeTotal?.toLocaleString() || '0' }}</p>
+      </div>
+      <div class="info-card">
+        <p class="info-label">支出</p>
+        <p class="info-value">NT$ {{ expenseTotal?.toLocaleString() || '0' }}</p>
+      </div>
+      <div class="info-card">
+        <p class="info-label">餘額</p>
+        <p class="info-value" :class="{ negative: balance < 0 }">NT$ {{ balance?.toLocaleString() || '0' }}</p>
+      </div>
+    </div>
 
     <!-- Quick Add Form -->
     <QuickAddForm
@@ -511,28 +518,31 @@ onUnmounted(() => {
 
 <style scoped>
 .page-wrap {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
-  background: #f5f5f5;
+  padding: 2rem 1.25rem 3rem;
   min-height: 100vh;
+  color: var(--text);
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: white;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  margin-bottom: 1.5rem;
+  padding: 1.1rem 1.25rem;
+  background: var(--surface);
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
+  color: var(--text);
 }
 
 .page-header h1 {
   margin: 0;
-  font-size: 1.75rem;
-  color: #333;
+  font-size: 1.7rem;
+  letter-spacing: 0.01em;
+  color: #0f172a;
 }
 
 .header-right {
@@ -552,21 +562,25 @@ onUnmounted(() => {
 }
 
 .user-name {
-  font-weight: 500;
-  color: #555;
+  font-weight: 600;
+  color: #0f172a;
 }
 
 button.ghost {
-  background: transparent;
-  border: 1px solid #ddd;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  padding: 0.55rem 0.95rem;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 1.25rem;
+  font-size: 1.05rem;
+  color: #0f172a;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
 }
 
 button.ghost:hover:not(:disabled) {
-  background: #f0f0f0;
+  background: #eef2ff;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
 }
 
 button.ghost:disabled {
@@ -575,24 +589,60 @@ button.ghost:disabled {
 }
 
 .logout-btn {
-  background: #ef4444;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
+  padding: 0.55rem 1rem;
+  border-radius: 10px;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
+  box-shadow: 0 10px 24px rgba(220, 38, 38, 0.28);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 .logout-btn:hover {
-  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px rgba(220, 38, 38, 0.36);
 }
 
 .analysis-grid {
   display: grid;
   grid-template-columns: 1fr 2fr;
-  gap: 2rem;
-  margin-bottom: 2rem;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.info-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 0 0 1.5rem;
+}
+
+.info-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+}
+
+.info-label {
+  margin: 0 0 0.35rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+}
+
+.info-value {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.info-value.negative {
+  color: #dc2626;
 }
 
 @media (max-width: 1024px) {

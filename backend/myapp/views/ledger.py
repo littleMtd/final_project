@@ -16,6 +16,7 @@ def ledger(request: HttpRequest) -> JsonResponse:
     Query參數:
       - kind: 'expense' | 'income' | 'all' (默認 'all')
       - type: 可選的類別名稱過濾
+      - month: 可選的月份篩選 (格式: YYYY-MM 或 YYYY-MM-DD)
       - page: 頁碼，從1開始 (默認 1)
       - page_size: 每頁條數 (默認 10, 最大 100)
     
@@ -41,6 +42,19 @@ def ledger(request: HttpRequest) -> JsonResponse:
     
     type_name = request.GET.get("type") or None
     
+    # 解析月份參數
+    month_filter = None
+    month_value = request.GET.get("month")
+    if month_value:
+        try:
+            from datetime import date
+            from calendar import monthrange
+            target_month = date.fromisoformat(month_value).replace(day=1)
+            last_day = target_month.replace(day=monthrange(target_month.year, target_month.month)[1])
+            month_filter = (target_month, last_day)
+        except ValueError:
+            return _json_error("month must be YYYY-MM or YYYY-MM-DD")
+    
     try:
         page = max(1, int(request.GET.get("page") or 1))
         page_size = min(100, max(1, int(request.GET.get("page_size") or 10)))
@@ -55,6 +69,8 @@ def ledger(request: HttpRequest) -> JsonResponse:
         expense_qs = ExpenseEntry.objects.filter(user=user)
         if type_name:
             expense_qs = expense_qs.filter(category__name=type_name)
+        if month_filter:
+            expense_qs = expense_qs.filter(entry_date__gte=month_filter[0], entry_date__lte=month_filter[1])
         expense_entries = list(
             expense_qs.values(
                 "id", "entry_date", "category__name", "amount", "note"
@@ -70,6 +86,8 @@ def ledger(request: HttpRequest) -> JsonResponse:
         income_qs = IncomeEntry.objects.filter(user=user)
         if type_name:
             income_qs = income_qs.filter(category__name=type_name)
+        if month_filter:
+            income_qs = income_qs.filter(entry_date__gte=month_filter[0], entry_date__lte=month_filter[1])
         income_entries = list(
             income_qs.values(
                 "id", "entry_date", "category__name", "amount", "note"
