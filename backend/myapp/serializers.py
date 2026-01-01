@@ -26,8 +26,12 @@ class SignupSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
 
     def validate_username(self, value):
+        # Only allow alphanumeric, underscore, and dash
+        import re
+        if not re.match(r'^[a-zA-Z0-9_-]+$', value):
+            raise serializers.ValidationError("Username can only contain letters, numbers, underscore and dash")
         if User.objects.filter(username=value).exists():
-            raise serializers.ValidationError("Username already exists")
+            raise serializers.ValidationError("This username is not available")
         return value
 
     def create(self, validated_data):

@@ -19,7 +19,7 @@ COPY . .
 
 # Create directories with proper permissions
 RUN mkdir -p /app/db /app/logs && \
-    chmod -R 777 /app/db /app/logs
+    chmod -R 755 /app/db /app/logs
 
 RUN python manage.py collectstatic --noinput || true
 

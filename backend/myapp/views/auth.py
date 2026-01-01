@@ -24,8 +24,13 @@ def signup_view(request: HttpRequest) -> JsonResponse:
         if not username or not password:
             raise ValueError("username and password are required")
         
+        # Validate username format
+        import re
+        if not re.match(r'^[a-zA-Z0-9_-]+$', username):
+            raise ValueError("Username can only contain letters, numbers, underscore and dash")
+        
         if User.objects.filter(username=username).exists():
-            raise ValueError("Username already exists")
+            raise ValueError("Registration failed. Please check your input")
         
         user = User.objects.create_user(username=username, password=password)
         ensure_default_categories(user)
