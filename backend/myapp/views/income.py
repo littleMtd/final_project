@@ -26,6 +26,11 @@ def income_types(request: HttpRequest) -> JsonResponse:
         )
         return _json_success({"types": types})
 
+    # 限制每用戶最多 50 個類別
+    user_category_count = IncomeCategory.objects.filter(user=user).count()
+    if user_category_count >= 50:
+        return _json_error("Maximum income categories limit (50) reached")
+
     try:
         data = _parse_body(request)
         name = data.get("name")
@@ -74,6 +79,12 @@ def create_income(request: HttpRequest) -> JsonResponse:
     """創建收入記錄"""
     try:
         user = _require_auth(request)
+        
+        # 限制每用戶最多 10000 筆記錄
+        user_income_count = IncomeEntry.objects.filter(user=user).count()
+        if user_income_count >= 10000:
+            return _json_error("Maximum income entries limit (10000) reached. Please delete old entries.")
+        
         data = _parse_body(request)
         category_name = data.get("type")
         if not category_name:

@@ -10,9 +10,9 @@ from ..services import summarize_month, build_insights
 from .utils import _json_error, _json_success, _require_auth
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["GET", "DELETE"])
 def report_overview(request: HttpRequest) -> JsonResponse:
-    """獲取月度財務報表概覽"""
+    """獲取或刪除月度財務報表概覽"""
     try:
         user = _require_auth(request)
     except PermissionError as exc:
@@ -27,6 +27,18 @@ def report_overview(request: HttpRequest) -> JsonResponse:
     else:
         target_month = date.today().replace(day=1)
     
+    # 刪除特定月份的報表記錄
+    if request.method == "DELETE":
+        deleted_count = MonthlyReport.objects.filter(
+            user=user,
+            month=target_month
+        ).delete()[0]
+        return _json_success({
+            "deleted": True,
+            "count": deleted_count,
+            "month": target_month.strftime("%Y-%m")
+        })
+    
     summary = summarize_month(user, target_month)
     payload = {
         "month": target_month.strftime("%Y-%m"),
@@ -40,13 +52,44 @@ def report_overview(request: HttpRequest) -> JsonResponse:
     return _json_success(payload)
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["GET", "DELETE"])
 def insights(request: HttpRequest) -> JsonResponse:
-    """獲取本月財務洞察建議"""
+    """獲取本月財務洞察建議或清除當月所有數據"""
     try:
         user = _require_auth(request)
     except PermissionError as exc:
         return _json_error(str(exc), status=401)
+
+    # DELETE 方法：清除當月所有收入/支出記錄
+    if request.method == "DELETE":
+        from ..models import ExpenseEntry, IncomeEntry
+        from datetime import date
+        
+        # 獲取當月第一天和最後一天
+        today = date.today()
+        first_day = today.replace(day=1)
+        from calendar import monthrange
+        last_day = today.replace(day=monthrange(today.year, today.month)[1])
+        
+        # 刪除當月的收入和支出記錄
+        expense_deleted = ExpenseEntry.objects.filter(
+            user=user,
+            entry_date__gte=first_day,
+            entry_date__lte=last_day
+        ).delete()[0]
+        
+        income_deleted = IncomeEntry.objects.filter(
+            user=user,
+            entry_date__gte=first_day,
+            entry_date__lte=last_day
+        ).delete()[0]
+        
+        return _json_success({
+            "deleted": True,
+            "expense_count": expense_deleted,
+            "income_count": income_deleted,
+            "month": first_day.strftime("%Y-%m")
+        })
 
     summary = summarize_month(user)
     insight_lines = build_insights(summary)

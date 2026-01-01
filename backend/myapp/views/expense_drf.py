@@ -20,6 +20,14 @@ def expense_types(request):
         serializer = ExpenseCategorySerializer(categories, many=True)
         return Response({'types': [c['name'] for c in serializer.data]})
     
+    # 限制每用戶最多 50 個類別
+    user_category_count = ExpenseCategory.objects.filter(user=request.user).count()
+    if user_category_count >= 50:
+        return Response(
+            {'error': 'Maximum expense categories limit (50) reached'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
     serializer = ExpenseCategorySerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
         category, created = ExpenseCategory.objects.get_or_create(
@@ -63,6 +71,14 @@ def expense_total(request):
 @permission_classes([IsAuthenticated])
 def create_expense(request):
     """創建支出記錄"""
+    # 限制每用戶最多 10000 筆記錄
+    user_expense_count = ExpenseEntry.objects.filter(user=request.user).count()
+    if user_expense_count >= 10000:
+        return Response(
+            {'error': 'Maximum expense entries limit (10000) reached. Please delete old entries.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
     serializer = ExpenseEntrySerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
         entry = serializer.save()
